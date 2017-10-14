@@ -11,5 +11,12 @@
     "electron"
   ],
   "author": "Jan Bölsche <jan@lagomorph.de> (http://regular.codes)",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "binary-stream-replace": "^1.0.2",
+    "bl": "^1.2.1",
+    "concat-stream": "^1.6.0",
+    "crc": "^3.5.0",
+    "through": "^2.3.8"
+  }
 }
