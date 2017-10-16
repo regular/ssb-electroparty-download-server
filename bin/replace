@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+
+const fs = require('fs')
+const concat = require('concat-stream')
+const replaceFileInzip = require('../replace-file-in-zip')
+
+if (process.argv.length<4) {
+  console.error(`usage: ${process.argv[1]} <zip-file> <magic-file>`)
+  console.error('(data read from stdin will replace magic file data in the zip-file)')
+  process.exit(1)
+}
+
+const zipFileName = process.argv[2]
+const magicFileName = process.argv[3]
+
+const magicData = fs.readFileSync(magicFileName)
+
+process.stdin.pipe(concat(function (newContent) {
+  fs.createReadStream(zipFileName)
+    .pipe( replaceFileInzip(magicData, newContent) )
+    .pipe(process.stdout)
+}))
+

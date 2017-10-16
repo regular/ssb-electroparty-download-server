@@ -1,28 +1,14 @@
-#!/usr/bin/env node
-
-const fs = require('fs')
 const ReplaceStream = require('binary-stream-replace');
-const concat = require('concat-stream')
-const through = require('through')
 const bl = require('bl')
 const crc = require('crc')
+const through = require('through')
+const throughout = require('throughout')
+const concat = require('concat-stream')
 
 const EOCD = Buffer.from([0x06, 0x05, 0x4b, 0x50].reverse())
 const CDFH = Buffer.from([0x02, 0x01, 0x4b, 0x50].reverse())
 
-if (process.argv.length<4) {
-  console.error('usage: scan <zip-file> <magic-file>')
-  process.exit(1)
-}
-
-const zipFileName = process.argv[2]
-const magicFileName = process.argv[3]
-
-const magicData = fs.readFileSync(magicFileName)
-
-replace(zipFileName, magicData, Buffer.from("Hello World!"))
-
-function replace(zipFileName, magicData, configData) {
+module.exports = function replaceZipFile(magicData, fileData) {
   const magicCrc = crc.crc32(magicData)
   console.error('magic', magicData.length, magicCrc.toString(16))
 
@@ -52,9 +38,9 @@ function replace(zipFileName, magicData, configData) {
 
   function patchMagicCDFH(e) {
     let b = e.buffers.slice()
-    b.writeUInt32LE(crc.crc32(configData), 16)
-    b.writeUInt32LE(configData.byteLength, 20)
-    b.writeUInt32LE(configData.byteLength, 24)
+    b.writeUInt32LE(crc.crc32(fileData), 16)
+    b.writeUInt32LE(fileData.byteLength, 20)
+    b.writeUInt32LE(fileData.byteLength, 24)
     b.writeUInt32LE(offset, 42)
     e.buffers = new bl()
     e.buffers.append(b)
@@ -78,16 +64,15 @@ function replace(zipFileName, magicData, configData) {
       patchMagicCDFH(e)
       let lh = makeLocalHeader(e)
       process.stdout.write(lh.slice())
-      process.stdout.write(configData)
-      offset += lh.length + configData.byteLength
+      process.stdout.write(fileData)
+      offset += lh.length + fileData.byteLength
     }
     return 46 + filenameLength + extraFiledLength + commentLength
   }
 
-  fs.createReadStream(zipFileName)
-    .pipe(rs1)
-    .pipe(rs2)
-    .pipe(through( function write(data) {
+  return throughout(
+    throughout(rs1, rs2),
+    through( function write(data) {
 
       let isCDFH = data.equals(CDFH)
       let isEOCD = data.equals(EOCD)
@@ -141,12 +126,12 @@ function replace(zipFileName, magicData, configData) {
       CDSize = 0
       newEntries.forEach( e => {
         CDSize += e.buffers.length
-        process.stdout.write( e.buffers.slice() )
+        this.queue( e.buffers.slice() )
       })
       console.error('Wrote new central directory at', offset, 'size=', CDSize)
       let newEOCD = bufs.slice()
       newEOCD.writeUInt32LE(offset, 16)
-      process.stdout.write(newEOCD)
+      this.queue(newEOCD)
     }
-  )).pipe(process.stdout)
+  ))
 }

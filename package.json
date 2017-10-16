@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Custom-made, yet generic desktop application binaries for Secure Scuttlebutt",
   "main": "index.js",
+  "bin": {
+    "replace-in-zip": "bin/replace"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +20,7 @@
     "bl": "^1.2.1",
     "concat-stream": "^1.6.0",
     "crc": "^3.5.0",
-    "through": "^2.3.8"
+    "through": "^2.3.8",
+    "throughout": "0.0.0"
   }
 }
