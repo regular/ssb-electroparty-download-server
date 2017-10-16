@@ -1,7 +1,7 @@
 # ssb-electroparty-download-server
 _Custom-made, yet generic desktop application binaries for Secure Scuttlebutt_
 
-This is a download server for desktop applicationbased on ssb-electroparty.
+This is a download server for desktop applications based on ssb-electroparty.
 
 ## Why?
 
@@ -17,13 +17,13 @@ This module explores an alternative approach. As a community we collaborate on b
 
 # Workflow
 
-1. You generate a 'magic file' of the maximum size of the config data you want to embed
+1. You generate a 'magic file' as a placeholder for the config data you want to embed
 
 2. You build ssb-electroparty for the platforms you want to support (chances are. somebody already did that for you.) Note, the electroparty build output is platform-specific, but not application-specifi!
 
 3. You place the magic file into the build output, and call it 'config' (or any other name you like)
 
-4. You pack and zip the build output along with the magic file. Because the magic file has high entropy, it will be copied verbatim into the zip file.
+4. You pack and zip the build output along with the magic file.
 
 5. You prepare an application-specific config file (called a "profile"). This is an ssb-client/sbot config files with some extra properties that configure Electron's BrowserWindow and stuff like that). You also put your application-specific configuration here. You can have mutliple application profiles for dufferent applications or different use cases of the same application (for a kisok mode, for example)
 
@@ -37,7 +37,7 @@ This module explores an alternative approach. As a community we collaborate on b
 
 ## How it works
 
-- When the linke is clicked, the download server extracts the user-specific config from the url. It then merges it with the application-profile, a raference to which is also found in the URL.
+- When the linke is clicked, the download server extracts the user-specific config from the url. It then merges it with the application-profile, a reference to which is also found in the URL.
 - The server starts streaming the zip file to the user, warching the stream for the beginning of the magic data.
 - When it sees the magic data, it replaces it with the merged configuration.
 
